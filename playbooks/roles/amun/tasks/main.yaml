@@ -1,0 +1,32 @@
+---
+  - name: login to OpenShift using provided token
+    command: "oc login --token {{ token }} {{ openshift_master_url }}"
+    changed_when: False
+    
+  - name: "create Amun Namespaces"
+    command: "oc new-project {{ item }}"
+    ignore_errors: true
+    with_items:
+      - "{{ AMUN_INFRA_NAMESPACE  }}"
+      - "{{ AMUN_API_NAMESPACE  }}"
+      - "{{ AMUN_INSPECTION_NAMESPACE }}"
+
+  - name: "make sure to use project {{ AMUN_INFRA_NAMESPACE }}"
+    command: "oc project {{ AMUN_INFRA_NAMESPACE }}"
+    register: project_exists
+    ignore_errors: true
+
+  - name: create Amun template
+    command: oc create --save-config=true --namespace "{{ AMUN_INFRA_NAMESPACE  }}" --filename ../openshift/template.yaml
+
+  - name: create Amun secrets template
+    command: oc create --save-config=true --namespace "{{ AMUN_INFRA_NAMESPACE  }}" --filename ../openshift/secret-template.yaml
+
+  - name: create Amun configmap template
+    command: oc create --save-config=true --namespace "{{ AMUN_INFRA_NAMESPACE  }}" --filename ../openshift/configmap-template.yaml
+ 
+  - name: create Amun API BuildConfig template
+    command: oc create --save-config=true --namespace {{ AMUN_INFRA_NAMESPACE }} --filename ../openshift/buildConfig-template.yaml
+
+  - name: create Amun API DeploymentConfig template
+    command: oc create --save-config=true --namespace "{{ AMUN_INFRA_NAMESPACE  }}" --filename ../openshift/deployment-template.yaml

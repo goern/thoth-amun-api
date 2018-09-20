@@ -1,0 +1,319 @@
+swagger: "2.0"
+info:
+  title: Amun API
+  version: "0.1"
+basePath: "/api/v1/"
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /inspect:
+    post:
+      tags: ['Inspection']
+      x-swagger-router-controller: amun.api_v1
+      operationId: post_inspect
+      summary: Inspect the given application stack.
+      parameters:
+        - name: body
+          in: body
+          required: true
+          description: Information about inspection.
+          schema:
+            type: object
+            additionalProperties: true
+      responses:
+        202:
+          description: Successful response with insection id.
+          schema:
+            $ref: "#/definitions/InspectionResponse"
+        400:
+          description: On invalid request.
+          schema:
+            $ref: "#/definitions/InspectionResponseError"
+    get:
+      tags: ['Inspection']
+      x-swagger-router-controller: amun.api_v1
+      operationId: list_inspect
+      summary: Get inspection listing.
+      responses:
+        200:
+          description: Successful response with insection id.
+          #schema:
+          #  $ref: "#/definitions/InspectionResponse"
+        400:
+          description: On invalid request.
+          #schema:
+          #  $ref: "#/definitions/InspectionResponseError"
+
+  /inspect/{inspection_id}/log:
+    get:
+      tags: ['Inspection']
+      x-swagger-router-controller: amun.api_v1
+      operationId: get_inspect_log
+      summary: Get log for a specific inspection.
+      parameters:
+        - name: inspection_id
+          format: path
+          in: path
+          required: true
+          type: string
+          description: Id of inspection run.
+      responses:
+        200:
+          description: Successful response with insection id.
+          #schema:
+          #  $ref: "#/definitions/InspectionResponse"
+        400:
+          description: On invalid request.
+          #schema:
+          #  $ref: "#/definitions/InspectionResponseError"
+
+  /inspect/{inspection_id}/status:
+    get:
+      tags: ['Inspection']
+      x-swagger-router-controller: amun.api_v1
+      operationId: get_inspect_status
+      summary: Get status of an inspection.
+      parameters:
+        - name: inspection_id
+          format: path
+          in: path
+          required: true
+          type: string
+          description: Id of inspection run.
+      responses:
+        200:
+          description: Successful response with insection id.
+          #schema:
+          #  $ref: "#/definitions/InspectionResponse"
+        400:
+          description: On invalid request.
+          #schema:
+          #  $ref: "#/definitions/InspectionResponseError"
+
+definitions:
+  InspectionResponse:
+    type: object
+    description: Response for a submitted analysis.
+    additionalProperties: false
+    properties:
+      analysis_id:
+        type: string
+        description: >
+          An id of submitted analysis for checking its status and its results.
+      parameters:
+        type: object
+        description: >
+          Parameters echoed back to user (with default parameters if omitted).
+    required:
+      - analysis_id
+      - parameters
+  InspectionResponseError:
+    type: object
+    required:
+      - error
+      - parameters
+    properties:
+      error:
+        type: string
+        description: Error information for user.
+      parameters:
+        type: object
+        description: Parameters echoed back to user for debugging.
+  InspectionResultResponse: &analysisResult
+    type: object
+    additionalProperties: false
+    description: Result of an analysis
+    required:
+      - metadata
+      - result
+    properties:
+      metadata:
+        type: object
+        description: Metadata for analysis run.
+        additionalProperties: false
+        required:
+          - analyzer
+          - analyzer_version
+          - arguments
+          - datetime
+          - distribution
+          - hostname
+          - python
+        properties:
+          analyzer:
+            type: string
+            description: Analyzer name which handled analysis.
+          analyzer_version:
+            type: string
+            description: Version of analyzer handling analysis.
+          arguments:
+            type: object
+            additionalProperties: true
+            description: Arguments passed to analyzer.
+          datetime:
+            type: string
+            description: Date and time of analysis end in ISO format.
+          distribution:
+            type: object
+            description: >
+              Information about environment in which the analysis
+              was performed.
+            required:
+              - codename
+              - id
+              - like
+              - version
+              - version_parts
+            properties:
+              codename:
+                type: string
+                description: >
+                  Codename of environment in which the analysis was perfomed.
+              id:
+                type: string
+                description: >
+                  Identifier of environment in which the analysis
+                  was perfomed.
+              like:
+                type: string
+                description: >
+                  Similar environments in comparision to environment in
+                  which the analysis was perfomed.
+              version:
+                type: string
+                description: A string representation of environment version.
+              version_parts:
+                type: object
+                description: >
+                  Parts of version identifier of the analysing environment.
+                properties:
+                  build_number:
+                    type: string
+                  major:
+                    type: string
+                  minor:
+                    type: string
+                additionalProperties: false
+                required:
+                  - build_number
+                  - major
+                  - minor
+          hostname:
+            type: string
+            description: Pod name where the analysis was done.
+          python:
+            required:
+              - api_version
+              - implementation_name
+              - major
+              - minor
+              - micro
+              - releaselevel
+              - serial
+            properties:
+              api_version:
+                type: integer
+              implementation_name:
+                type: string
+                example: cpython
+              major:
+                type: integer
+              micro:
+                type: integer
+              minor:
+                type: integer
+              releaselevel:
+                type: string
+                example: final
+              serial:
+                type: integer
+      result:
+        type: object
+        additionalProperties: true
+        description: Actual result of an analysis run.
+  InspectionListingResponse:
+    type: array
+    description: Listing of available results.
+    items: *analysisResult
+  InspectionStatusResponse: &analysisStatus
+    type: object
+    description: Information about the current analysis status.
+    additionalProperties: false
+    required:
+      - parameters
+      - status
+    properties:
+      status:
+        type: object
+        description: Status information about the analysis run.
+        additionalProperties: false
+        # TODO: uncomment this once swagger-codegen will support nullable fields
+        # swagger-codegen requires nullable to be marked as "nullable", but
+        # connexion requires them to be marked with "x-nullable". We will need
+        # to wait for compatibility to fully support this.
+        # required:
+        #   - container
+        #   - exit_code
+        #   - finished_at
+        #   - reason
+        #   - started_at
+        #   - state
+        # properties:
+        #   container:
+        #     type: string
+        #     description: SHA of container image in which the analysis is done.
+        #     nullable: true
+        #   exit_code:
+        #     type: integer
+        #     description: Return code of the process perfoming analysis.
+        #     nullable: true
+        #   finished_at:
+        #     type: string
+        #     description: >
+        #       Datetime in ISO format informing about when the analysis
+        #       has finished.
+        #     nullable: true
+        #   reason:
+        #     type: string
+        #     description: Reasoning on finished run.
+        #     nullable: true
+        #   started_at:
+        #     type: string
+        #     description: >
+        #       Datetime in ISO format informing about when the analysis
+        #       has started.
+        #   state:
+        #     type: string
+        #     example: terminated
+      parameters:
+        type: object
+        description: Parameters echoed back to user for debugging.
+        additionalProperties: true
+  AnalysisUnfinishedResultResponse:
+    type: object
+    required:
+      - error
+      - parameters
+      - status
+    properties:
+      error:
+        type: string
+        description: Error information for user.
+      parameters:
+        type: object
+        description: Parameters echoed back to user for debugging.
+      status: *analysisStatus
+  InspectionLogResponse:
+    type: object
+    required:
+      - log
+      - parameters
+    properties:
+      log:
+        type: string
+        description: Analyzer logs printed to stdout/stderr as a plain text.
+      parameters:
+        type: object
+        description: Parameters echoed back to user for debugging.
