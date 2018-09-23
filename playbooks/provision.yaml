@@ -5,10 +5,14 @@
   vars:
     openshift_master_url: "{{ lookup('env','OCP_URL') }}"
     token: "{{ lookup('env','OCP_TOKEN') }}"
-    AMUN_INFRA_NAMESPACE: "{{ lookup('env','USER') }}-amun-dev"
-    AMUN_API_NAMESPACE: "{{ lookup('env','USER') }}-amun-dev"
-    AMUN_INSPECTION_NAMESPACE: "{{ lookup('env','USER') }}-amun-dev"
-    AMUN_API_APP_SECRET_KEY: "{{ lookup('env','AMUN_API_APP_SECRET_KEY') }}"
+    #AMUN_INFRA_NAMESPACE: "{{ lookup('env','USER') }}-amun-dev"
+    #AMUN_API_NAMESPACE: "{{ lookup('env','USER') }}-amun-dev"
+    #AMUN_INSPECTION_NAMESPACE: "{{ lookup('env','USER') }}-amun-dev"
+    AMUN_INFRA_NAMESPACE: "fpokorny-thoth-dev"
+    AMUN_API_NAMESPACE: "fpokorny-thoth-dev"
+    AMUN_INSPECTION_NAMESPACE: "fpokorny-thoth-dev"
+    #AMUN_API_APP_SECRET_KEY: "{{ lookup('env','AMUN_API_APP_SECRET_KEY') }}"
+    AMUN_API_APP_SECRET_KEY: "FOO"
     PROMETHEUS_PUSHGATEWAY_HOST: "{{ lookup('env','PROMETHEUS_PUSHGATEWAY_HOST') }}"
     PROMETHEUS_PUSHGATEWAY_PORT: "{{ lookup('env','PROMETHEUS_PUSHGATEWAY_PORT') }}"
 

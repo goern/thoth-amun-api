@@ -9,6 +9,7 @@ gunicorn = "*"
 connexion = "*"
 flask = "*"
 thoth-common = {version = "*", extras = ["openshift"]}
+flask-script = "*"
 
 [dev-packages]
 

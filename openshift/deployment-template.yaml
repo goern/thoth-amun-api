@@ -65,11 +65,13 @@ objects:
               env:
                 - name: APP_MODULE
                   value: 'amun.entrypoint:app'
+                - name: KUBERNETES_VERIFY_TLS
+                  value: '0'
                 - name: AMUN_DEBUG
                   value: '0'
                 - name: AMUN_INSPECTION_NAMESPACE
                   valueFrom:
-                    secretKeyRef:
+                    configMapKeyRef:
                       name: amun
                       key: amun-inspection-namespace
                 - name: AMUN_API_APP_SECRET_KEY
@@ -123,7 +125,7 @@ objects:
               - amun-api
             from:
               kind: ImageStreamTag
-              name: 'user-api:latest'
+              name: 'amun-api:latest'
 
   - kind: ImageStream
     apiVersion: v1

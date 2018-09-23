@@ -85,7 +85,7 @@ def page_not_found(exc):
     return jsonify({'error': str(exc)}), 404
 
 
- @application.errorhandler(500)
+@application.errorhandler(500)
 def internal_server_error(exc):
     """Adjust 500 page to be consistent with errors reported back from API."""
     # Provide some additional information so we can easily find exceptions in logs (time and exception type).

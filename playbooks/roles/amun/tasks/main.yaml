@@ -20,7 +20,7 @@
     command: oc create --save-config=true --namespace "{{ AMUN_INFRA_NAMESPACE  }}" --filename ../openshift/template.yaml
 
   - name: create Amun secrets template
-    command: oc create --save-config=true --namespace "{{ AMUN_INFRA_NAMESPACE  }}" --filename ../openshift/secret-template.yaml
+    command: oc create --save-config=true --namespace "{{ AMUN_INFRA_NAMESPACE  }}" --filename ../openshift/secrets-template.yaml
 
   - name: create Amun configmap template
     command: oc create --save-config=true --namespace "{{ AMUN_INFRA_NAMESPACE  }}" --filename ../openshift/configmap-template.yaml
@@ -30,3 +30,24 @@
 
   - name: create Amun API DeploymentConfig template
     command: oc create --save-config=true --namespace "{{ AMUN_INFRA_NAMESPACE  }}" --filename ../openshift/deployment-template.yaml
+
+  - name: create Amun objects from template
+    command: oc new-app --namespace {{ AMUN_API_NAMESPACE }} --template="{{ AMUN_INFRA_NAMESPACE  }}/amun-core" \
+        -p AMUN_INSPECTION_NAMESPACE="{{ AMUN_INSPECTION_NAMESPACE }}" \
+        -p AMUN_API_NAMESPACE="{{ AMUN_API_NAMESPACE }}"
+
+  - name: create Amun secrets
+    command: oc new-app --namespace {{ AMUN_API_NAMESPACE }} --template="{{ AMUN_INFRA_NAMESPACE  }}/amun-secrets" \
+        -p AMUN_API_APP_SECRET_KEY="{{ AMUN_API_APP_SECRET_KEY }}"
+
+  - name: create Amun configmap
+    command: oc new-app --namespace {{ AMUN_API_NAMESPACE }} --template="{{ AMUN_INFRA_NAMESPACE  }}/amun-configmap" \
+        -p AMUN_INSPECTION_NAMESPACE="{{ AMUN_INSPECTION_NAMESPACE }}" \
+        -p PROMETHEUS_PUSHGATEWAY_HOST="{{ PROMETHEUS_PUSHGATEWAY_HOST }}" \
+        -p PROMETHEUS_PUSHGATEWAY_PORT="{{ PROMETHEUS_PUSHGATEWAY_PORT }}"
+
+  - name: create Amun API BuildConfig
+    command: oc new-app --namespace {{ AMUN_API_NAMESPACE }} --template="{{ AMUN_INFRA_NAMESPACE  }}/amun-api-buildconfig"
+
+  - name: create Amun API DeploymentConfig
+    command: oc new-app --namespace {{ AMUN_API_NAMESPACE }} --template="{{ AMUN_INFRA_NAMESPACE  }}/amun-api-deployment"

@@ -15,13 +15,12 @@ paths:
       operationId: post_inspect
       summary: Inspect the given application stack.
       parameters:
-        - name: body
+        - name: specification
           in: body
           required: true
-          description: Information about inspection.
+          description: Base image to be used for runtime environment.
           schema:
-            type: object
-            additionalProperties: true
+            $ref: "#/definitions/InspectionSpecification"
       responses:
         202:
           description: Successful response with insection id.
@@ -93,6 +92,54 @@ paths:
           #  $ref: "#/definitions/InspectionResponseError"
 
 definitions:
+  InspectionSpecification:
+    type: object
+    description: Specification of software stack for inspection.
+    additionalProperties: false
+    required:
+      - base
+      - packages
+      - files
+    properties:
+      install_python:
+        type: boolean
+        description: Install Python packages if Pipfile and Pipfile.lock were provided in input files.
+        default: false
+      base:
+        type: string
+        description: Base image on which the runtime environment should be based on.
+      packages:
+        type: array
+        description: A list of native packages that should be installed into the runtime environment.
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - name
+            - version
+          properties:
+            name:
+              type: string
+              description: Name of the package to be installed.
+            version:
+              type: string
+              description: Version identifier to select a specific package version to be installed.
+      files:
+        type: array
+        description: Files passed to the context.
+        items:
+          type: object
+          additionalProperties: false
+          required:
+            - name
+            - content
+          properties:
+            name:
+              type: string
+              description: Name of the file including a relative path to context.
+            content:
+              type: string
+              description: A string holding actual content of the file.
   InspectionResponse:
     type: object
     description: Response for a submitted analysis.
